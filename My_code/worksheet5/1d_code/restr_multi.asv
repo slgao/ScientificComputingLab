@@ -1,0 +1,6 @@
+function  r=restr_multi(N,res)
+j=1;
+r=[];
+for i=1:N
+    r=[r,res(2*i)];
+end

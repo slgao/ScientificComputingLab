@@ -1,0 +1,49 @@
+function y = impEuler(f,y0,dt,tend)
+
+% impEuler(f,y0,dt,tend). Calculates the solution of the differential
+% equation y' = f(y) with y(0) = y0 using the implicit Euler method. f is a
+% handle to the function f(y); y0 is the initial value of the function; dt
+% is the timestep; tend is the final time.
+
+tic
+Tn = tend./dt;
+t = 0:dt:tend;
+y(1) = y0;
+method = 1;
+
+% % First alternative for Worksheet 1: Solve the quadratic equation
+if(method==1)
+    
+    a = 1;
+    b = (1-7*dt)*10/(7*dt);
+    c = -10/(7*dt);
+
+    for j=2:Tn+1
+        y(j) = 2*c*y(j-1)/(-sqrt(b^2-4*a*c*y(j-1))-b);
+    %     y(j) = -b/(2*a) + (1/2)*sqrt(b^2-4*a*c*y(j-1));
+    end
+
+end
+
+% Second alternative: Use Newton's method
+if(method == 2)
+    syms ys;
+    fs = f(ys);         %Make the function handle a symbolic function
+    dfs = diff(fs,ys);   %Find its derivative
+
+    for j=2:Tn+1
+        tol = 1e-4;
+        error = 1;
+        y(j) = y(j-1); %Initial guess for the y(j) value
+        F = ys - y(j-1) -dt*subs(fs,ys); %Implicit Euler function for Newton's method
+        dF = 1 -dt*subs(dfs,ys);         %Its derivative
+        while(error>tol)
+            yprev = y(j);
+            y(j) = yprev-subs(F,yprev)/subs(dF,yprev);
+            if(abs(abs(y(j)-yprev)-error))
+            error = abs(y(j)-yprev);
+        end
+    end
+
+end
+tE=toc;

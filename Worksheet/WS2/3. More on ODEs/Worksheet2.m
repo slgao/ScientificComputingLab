@@ -1,0 +1,177 @@
+clear all
+tend = 5;
+dt = 1/2^6;
+Tn = tend/dt;
+t = linspace(0,tend,Tn);
+p0 = 20;
+fp = @(p)(7*(1-p/10)*p);
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Exact solution
+pEx = 200./(20-10*exp(-7*t));
+figure(1)
+% subplot(2,2,1)
+% hold on
+plot(t,pEx,'Color','r'); set(gcf,'Color','w');
+title('Plot of the exact solution p(t)=200/(20-10e^{-7t})');
+xlabel('t'); ylabel('p(t)')
+
+dt = [1,1/2,1/4,1/8,1/16,1/32,1/64,1/128,1/256];
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Explicit Euler method
+figure(2)
+subplot(1,2,1)
+hold on
+for j=1:length(dt)
+    t = 0:dt(j):tend;
+    pEx = 200./(20-10*exp(-7*t));
+    fE = expEuler(fp,p0,dt(j),tend);
+    errE(j) = sqrt((dt(j)/5)*sum((fE-pEx).^2));
+    plot(t,fE,'Color','k');
+    hold on
+end
+for j=1:length(dt)-1
+    errEr(j)=errE(j+1)/errE(j);
+end
+plot(t,pEx,'Color','r');
+set(gcf,'Color','w');
+title('Plot of the solution using the explicit Euler method');
+xlabel('t'); ylabel('p(t)^{Euler}')
+hold off
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Heun method
+% figure(3)
+subplot(1,2,2)
+hold on
+for j=1:length(dt)
+    t = 0:dt(j):tend;
+    pEx = 200./(20-10*exp(-7*t));
+    fH = Heun(fp,p0,dt(j),tend);
+    errH(j) = sqrt((dt(j)/5)*sum((fH-pEx).^2));
+    plot(t,fH,'Color','k'); 
+    hold on
+end
+for j=1:length(dt)-1
+    errHr(j)=errH(j+1)/errH(j);
+end
+plot(t,pEx,'Color','r');
+set(gcf,'Color','w');
+title('Plot of the solution using the Heun method')
+xlabel('t'); ylabel('p(t)^{Heun}')
+hold off
+% 
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% % Runge-Kutta 4 method
+% % figure(4)
+% subplot(2,2,4)
+% hold on
+% for j=1:length(dt)
+%     t = 0:dt(j):tend;
+%     pEx = 200./(20-10*exp(-7*t));
+%     fRK = RK4(fp,p0,dt(j),tend);
+%     errRK(j) = sqrt((dt(j)/5)*sum((fRK-pEx).^2));
+%     plot(t,fRK,'Color','k');
+%     hold on
+% end
+% plot(t,pEx,'Color','r');
+% set(gcf,'Color','w');
+% title('Plot of the solution using the Runge-Kutta 4 method');
+% xlabel('t'); ylabel('p(t)^{RK4}')
+set(gcf,'units','normalized','outerposition',[0 0 1 1]);
+% hold off
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Implicit Euler method
+dt = [1/2,1/4,1/8,1/16,1/32,1/64];
+figure(3)
+subplot(1,2,1)
+hold on
+for j=1:length(dt)
+    t = 0:dt(j):tend;
+    pEx = 200./(20-10*exp(-7*t));
+    fiE = impEuler(fp,p0,dt(j),tend);
+    erriE(j) = sqrt((dt(j)/5)*sum((fiE-pEx).^2));
+    plot(t,fiE,'Color','k');
+    hold on
+end
+for j=1:length(dt)-1
+    erriEr(j)=erriE(j+1)/erriE(j);
+end
+plot(t,pEx,'Color','r');
+set(gcf,'Color','w');
+title('Plot of the solution using the implicit Euler method');
+xlabel('t'); ylabel('p(t)^{impEuler}')
+hold off
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Second order Adams-Moulton method
+dt = [1/4,1/8,1/16,1/32,1/64];
+% figure(12)
+subplot(1,2,2)
+hold on
+for j=1:length(dt)
+    t = 0:dt(j):tend;
+    pEx = 200./(20-10*exp(-7*t));
+    fAM = adMo(fp,p0,dt(j),tend);
+    errAM(j) = sqrt((dt(j)/5)*sum((fAM-pEx).^2));
+    plot(t,fAM,'Color','k');
+    hold on
+end
+for j=1:length(dt)-1
+    errAMr(j)=errAM(j+1)/errAM(j);
+end
+plot(t,pEx,'Color','r');
+set(gcf,'Color','w');
+title('Plot of the solution using the second order Adams-Moulton method');
+xlabel('t'); ylabel('p(t)^{AM}')
+set(gcf,'units','normalized','outerposition',[0 0 1 1]);
+hold off
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Second order Adams-Moulton method: Linearisation 1
+dt = [1/2,1/4,1/8,1/16,1/32,1/64];%,1/128,1/256,1/512,1/1024];
+fpL = @(p1,p2)(7*(1-p1/10)*p2);
+figure(4)
+subplot(1,2,1)
+hold on
+for j=1:length(dt)
+    t = 0:dt(j):tend;
+    pEx = 200./(20-10*exp(-7*t));
+    fAML1 = adMoLin(fpL,p0,dt(j),tend,1);
+    errAML1(j) = sqrt((dt(j)/5)*sum((fAML1-pEx).^2));
+    plot(t,fAML1,'Color','k');
+    hold on
+end
+for j=1:length(dt)-1
+    errAML1r(j)=errAML1(j+1)/errAML1(j);
+end
+plot(t,pEx,'Color','r');
+set(gcf,'Color','w');
+title('Plot of the solution using the second order Adams-Moulton method, Linearisation 1');
+xlabel('t'); ylabel('p(t)^{AML1}')
+hold off
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Second order Adams-Moulton method: Linearisation 2
+subplot(1,2,2)
+hold on
+for j=1:length(dt)
+    t = 0:dt(j):tend;
+    pEx = 200./(20-10*exp(-7*t));
+    fAML2 = adMoLin(fpL,p0,dt(j),tend,2);
+    errAML2(j) = sqrt((dt(j)/5)*sum((fAML2-pEx).^2));
+    plot(t,fAML2,'Color','k');
+    hold on
+end
+for j=1:length(dt)-1
+    errAML2r(j)=errAML2(j+1)/errAML2(j);
+end
+plot(t,pEx,'Color','r');
+set(gcf,'Color','w');
+title('Plot of the solution using the second order Adams-Moulton method, Linearisation 2');
+xlabel('t'); ylabel('p(t)^{AML2}')
+set(gcf,'units','normalized','outerposition',[0 0 1 1]);
+hold off
